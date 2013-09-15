@@ -1,0 +1,69 @@
+from pylab import *  # import the drawing stuff
+import re
+
+NUMBER_OF_FLOATS = 21
+
+filename = []
+for i in range(1,10):
+    filename.append('float_' + '0' + str(i))
+    # print filename[i-1]
+    
+for i in range(10, NUMBER_OF_FLOATS + 1):
+    filename.append('float_' + str(i))
+    # print filename[i-1]
+    
+file = open(filename[0], 'r')
+f = file.readlines()
+
+# Draw the Energy Consumption Figure
+time = []
+energy = []
+
+for positives in f:
+    if 'energy' in positives:
+        # print positives
+        numbers = re.findall("\d+.\d+", positives)
+        # print int(numbers[0]), float(numbers[1])
+        time.append(int(numbers[0]))
+        energy.append(float(numbers[1]))
+
+# Draw the Estimation Error Figure
+time_location = []
+error =[]
+
+for positives in f:
+    if 'real position' in positives:
+        # print positives
+        numbers_real = re.findall("\d+", positives)
+        # print int(numbers_real[0]), int(numbers_real[1]), int(numbers_real[2]), int(numbers_real[3])
+    if 'estimated position' in positives:
+        # print positives
+        numbers_est = re.findall("\d+.\d", positives)
+        # print int(numbers_est[0]), float(numbers_est[1]), float(numbers_est[2])
+        time_location.append(int(numbers_est[0]))
+        error.append(math.sqrt( math.pow( (float(numbers_real[2]) - float(numbers_est[1])), 2) +
+                                math.pow( (float(numbers_real[3]) - float(numbers_est[2])), 2) ))
+
+# create the general figure
+fig1 = figure()
+ 
+# and the first axes using subplot populated with data 
+ax1 = fig1.add_subplot(111)
+line1 = ax1.plot(time, energy, 'o--')
+ylabel("Energy Consumption Figure")
+ 
+# now, the second axes that shares the x-axis with the ax1
+ax2 = fig1.add_subplot(111, sharex=ax1, frameon=False)
+line2 = ax2.plot(time_location, error, 'r--')
+ax2.yaxis.tick_right()
+ax2.yaxis.set_label_position("right")
+ylabel("Estimation Error Figure")
+
+grid(True)
+savefig("float_01.png")
+show()
+
+file.close()
+
+        
+
